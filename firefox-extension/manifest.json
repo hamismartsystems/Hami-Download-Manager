@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "HAMI Download Manager (HDM)",
+  "version": "1.0.0",
+  "description": "Send downloads to HAMI Download Manager (HDM).",
+  "icons": { "48": "icon.png", "96": "icon.png", "128": "icon.png" },
+  "action": { "default_popup": "popup.html", "default_icon": "icon.png" },
+  "background": { "scripts": ["background.js"] },
+  "permissions": ["contextMenus", "downloads", "storage"],
+  "host_permissions": ["http://127.0.0.1:17321/*"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "hdm@hamidesigns.shop",
+      "strict_min_version": "115.0"
+    }
+  }
+}
