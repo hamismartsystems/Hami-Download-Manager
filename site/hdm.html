@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HAMI Download Manager (HDM) — HAMI SMART SYSTEMS</title>
+<meta name="description" content="HDM v1.0.0 — fast download manager for Windows: segmented multi-part downloads, smart folders, queue and scheduling, Chrome extension. 7-day free trial.">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Tahoma,"Segoe UI",system-ui,sans-serif;background:#0b1020;color:#eef2ff;padding:18px;line-height:1.9}
+.wrap{max-width:780px;margin:0 auto}
+header{text-align:center;margin:10px 0 22px}
+.logo{width:84px;height:84px;border-radius:20px;margin-bottom:10px}
+h1{font-size:23px;margin-bottom:6px}
+h1 b{color:#00A86B}
+.sub{color:#9fb0d6;font-size:13px}
+.toggle{margin:14px 0 4px}
+.toggle button{background:#1e2942;color:#cfe0ff;border:1px solid #37466b;border-radius:10px;padding:7px 14px;cursor:pointer;font-family:inherit}
+.card{background:#141b33;border:1px solid #26304f;border-radius:16px;padding:18px;margin-bottom:16px}
+.card h2{font-size:17px;margin-bottom:4px}
+.meta{color:#9fb0d6;font-size:12.5px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.plan{background:#0f1730;border:1px solid #2b3a63;border-radius:14px;padding:16px;text-align:center}
+.plan.featured{border-color:#00A86B;box-shadow:0 0 0 1px #00A86B inset}
+.plan b{display:block;font-size:15px;margin-bottom:6px}
+.price{color:#00A86B;font-weight:800;font-size:19px;margin-bottom:6px}
+.plan small{color:#9fb0d6;font-size:11.5px}
+.btn{display:block;text-align:center;text-decoration:none;padding:14px;border-radius:12px;font-weight:700;
+     font-size:15px;margin-bottom:8px;border:0;cursor:pointer;font-family:inherit;width:100%}
+.primary{background:linear-gradient(135deg,#00A86B,#0e8f5f);color:#04140c}
+.secondary{background:#1e2942;color:#cfe0ff;border:1px solid #37466b}
+ul{margin:10px 20px;color:#cfe0ff;font-size:14px}
+li{margin-bottom:4px}
+.note{color:#9fb0d6;font-size:12.5px;margin-top:10px}
+footer{text-align:center;color:#6d7fa8;font-size:11.5px;padding:22px 0}
+[dir=rtl] ul{margin:10px 20px 10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <img class="logo" src="https://hamidesigns.shop/uploads/hdm-logo.png" alt="HDM" onerror="this.style.display='none'">
+  <h1>HAMI Download Manager (<b>HDM</b>)</h1>
+  <div class="sub" id="t-sub">Fast download manager for Windows · Chrome, Edge & Firefox extensions · v1.0.0</div>
+  <div class="toggle"><button onclick="setLang(lang==='en'?'fa':'en')" id="langBtn">فارسی</button></div>
+</header>
+
+<div class="card">
+  <h2 id="t-dl">Download</h2>
+  <div class="meta" id="t-dlm">Windows 10/11 (64-bit) · Installer · 7-day full-speed trial</div>
+  <a class="btn primary" href="https://hamidesigns.shop/hdm/files/HDM-1.0.0-Setup.exe" id="t-dlbtn">Download HDM 1.0.0</a>
+  <a class="btn secondary" href="https://hamidesigns.shop/hdm/files/hdm-chrome-extension.zip" id="t-extbtn">Chrome / Edge extension (zip)</a>
+  <a class="btn secondary" href="https://hamidesigns.shop/hdm/files/hdm-firefox-extension.zip" id="t-ffbtn">Firefox extension (zip)</a>
+  <div class="note" id="t-dlnote">After installing, open Chrome → chrome://extensions → Developer mode → Load unpacked → the unzipped folder.</div>
+</div>
+
+<div class="card">
+  <h2 id="t-plans">License plans</h2>
+  <div class="meta" id="t-plansm">7 days free at full speed. After the trial, speed is limited to 150 KB/s until you activate a license.</div>
+  <div class="grid">
+    <div class="plan"><b id="p1">6 Months</b><div class="price">580,000 T</div><small id="p1s">Full speed for 6 months</small></div>
+    <div class="plan featured"><b id="p2">1 Year</b><div class="price">1,100,000 T</div><small id="p2s">Best value · full speed for 12 months</small></div>
+    <div class="plan"><b id="p3">Lifetime</b><div class="price">5,000,000 T</div><small id="p3s">No expiry</small></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 id="t-how">How to buy</h2>
+  <ul id="howList"></ul>
+  <a class="btn secondary" href="https://t.me/Hami_hf84" id="t-buybtn">Buy on Telegram</a>
+  <div class="note" id="t-buynote">The key works only with the exact name registered at purchase.</div>
+</div>
+
+<div class="card">
+  <h2 id="t-feat">Features</h2>
+  <ul id="featList"></ul>
+</div>
+
+<footer>HAMI SMART SYSTEMS · HAMI Download Manager (HDM) v1.0.0</footer>
+</div>
+
+<script>
+var T={en:{dir:'ltr',btn:'فارسی',sub:'Fast download manager for Windows · Chrome, Edge & Firefox extensions · v1.0.0',
+ dl:'Download',dlm:'Windows 10/11 (64-bit) · Installer · 7-day full-speed trial',
+ dlbtn:'Download HDM 1.0.0',extbtn:'Chrome / Edge extension (zip)',ffbtn:'Firefox extension (zip)',
+ dlnote:'After installing, open Chrome → chrome://extensions → Developer mode → Load unpacked → the unzipped folder.',
+ plans:'License plans',plansm:'7 days free at full speed. After the trial, speed is limited to 150 KB/s until you activate a license.',
+ p1:'6 Months',p1s:'Full speed for 6 months',p2:'1 Year',p2s:'Best value · full speed for 12 months',p3:'Lifetime',p3s:'No expiry',
+ how:'How to buy',buybtn:'Buy on Telegram',buynote:'The key works only with the exact name registered at purchase.',feat:'Features'},
+ fa:{dir:'rtl',btn:'English',sub:'مدیریت دانلود سریع برای ویندوز · افزونه کروم · نسخه ۱.۰.۰',
+ dl:'دانلود',dlm:'ویندوز ۱۰/۱۱ (۶۴ بیت) · نصب‌کننده · ۷ روز سرعت کامل',
+ dlbtn:'دانلود HDM 1.0.0',extbtn:'افزونهٔ کروم/اج (zip)',ffbtn:'افزونهٔ فایرفاکس (zip)',
+ dlnote:'پس از نصب: کروم → chrome://extensions → Developer mode → Load unpacked → پوشه از حالت فشرده خارج‌شده.',
+ plans:'پلن‌های لایسنس',plansm:'۷ روز سرعت کامل رایگان؛ بعد از آن سرعت به ۱۵۰ کیلوبایت بر ثانیه محدود می‌شود تا لایسنس فعال کنید.',
+ p1:'۶ ماهه',p1s:'سرعت کامل به مدت ۶ ماه',p2:'یک‌ساله',p2s:'بهترین انتخاب · سرعت کامل ۱۲ ماه',p3:'مادام‌العمر',p3s:'بدون تاریخ انقضا',
+ how:'نحوه خرید',buybtn:'خرید در تلگرام',buynote:'کلید فقط با همان نامی که هنگام خرید ثبت می‌شود کار می‌کند.',feat:'امکانات'}};
+var HOW={en:['Message <b>@Hami_hf84</b> on Telegram and tell us the plan you want.',
+ 'Pay to the announced card and send a photo of the receipt.','We send you your <b>name + license key</b>.',
+ 'In HDM, enter the same name and the key → Activate.'],
+ fa:['در تلگرام به <b>@Hami_hf84</b> پیام بدهید و پلن مورد نظر را بگویید.',
+ 'به کارت اعلام‌شده واریز کنید و عکس رسید را بفرستید.','<b>نام + کلید لایسنس</b> برای شما ارسال می‌شود.',
+ 'در برنامه HDM همان نام و کلید را وارد کنید → فعال‌سازی.']};
+var FEAT={en:['Every file is split into parts and downloaded in parallel, then joined into one file (like IDM)',
+ 'Resume after pause, disconnect or restart — each part continues where it stopped',
+ 'Download queue: 1–5 simultaneous downloads (3 by default), Pause Queue / Resume Queue',
+ 'Scheduler: download only inside a time window you choose, or press Start Now',
+ 'Files are sorted automatically into Programs / Compressed / Video / Photo / Music / Documents',
+ 'Chrome extension: right-click a link → Download with HDM, or capture all Chrome downloads',
+ 'English &amp; Persian interface · runs from the system tray'],
+ fa:['هر فایل به چند تکه تقسیم و همزمان دریافت می‌شود و در پایان یک فایل کامل تحویل داده می‌شود',
+ 'ادامهٔ دانلود پس از توقف یا قطع اینترنت — هر تکه از همان‌جا که مانده ادامه می‌یابد',
+ 'صف دانلود: ۱ تا ۵ دانلود همزمان (پیش‌فرض ۳) با دکمه‌های توقف و ادامهٔ صف',
+ 'زمان‌بندی: دانلود فقط در بازهٔ زمانی دلخواه، یا شروع فوری با Start Now',
+ 'دسته‌بندی خودکار فایل‌ها در پوشه‌های برنامه‌ها، فشرده، ویدیو، تصویر، موسیقی و اسناد',
+ 'افزونهٔ کروم: راست‌کلیک روی لینک → Download with HDM یا گرفتن همهٔ دانلودهای کروم',
+ 'رابط انگلیسی و فارسی · اجرا در نوار سیستم']};
+var lang='en';
+function setLang(l){lang=l;var t=T[l];
+ document.documentElement.dir=t.dir;document.documentElement.lang=l;
+ ['sub','dl','dlm','dlbtn','extbtn','dlnote','plans','plansm','p1','p1s','p2','p2s','p3','p3s','how','buybtn','buynote','feat']
+  .forEach(function(k){var el=document.getElementById('t-'+k)||document.getElementById(k);if(el)el.textContent=t[k];});
+ document.getElementById('langBtn').textContent=t.btn;
+ document.getElementById('howList').innerHTML=HOW[l].map(function(x){return '<li>'+x+'</li>';}).join('');
+ document.getElementById('featList').innerHTML=FEAT[l].map(function(x){return '<li>'+x+'</li>';}).join('');}
+setLang('en');
+</script>
+</body>
+</html>
