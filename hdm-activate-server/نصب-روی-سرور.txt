@@ -1,0 +1,81 @@
+✅ این سرویس هم‌اکنون روی سرور فنلاند نصب و فعال است:
+   https://hamidesigns.shop/api/hdm/ping
+(دستیار آن را مستقیماً با SSH نصب کرد؛ نیازی به کاری از سمت شما نیست.)
+مطالب زیر فقط برای نصبِ پشتیبان روی سرورِ دوم (ایران) یا نصب دوباره است.
+
+نصب سرویس فعال‌سازی HDM روی سرورها
+════════════════════════════════════
+سرویس یک فایل است: hdm-activate.js  (بدون هیچ کتابخانه‌ای؛ فقط Node کافی است)
+هر سریال فقط روی یک کامپیوتر فعال می‌شود؛ فعال‌سازی مجدد روی همان کامپیوتر
+(حتی بعد از نصب دوبارهٔ ویندوز) همیشه کار می‌کند.
+
+
+═══ گزینهٔ ۱) سرور فنلاند — داخل سایت hamidesigns.shop (توصیه می‌شود) ═══
+آدرس نهایی:  https://hamidesigns.shop/api/hdm/activate
+
+۱) فایل را در پوشهٔ routes سایت بگذارید:
+      /opt/hamidesigns/routes/hdm-activate.js
+   (با FileZilla یا WinSCP یا scp)
+
+۲) یک خط به server.js اضافه کنید. این دستور خودش خط را اضافه می‌کند:
+      cd /opt/hamidesigns
+      cp server.js server.js.bak-hdm
+      grep -q "hdm-activate" server.js || \
+        sed -i "s|^app.use('/api/orders'|app.use('/api/hdm', require('./routes/hdm-activate').router);\napp.use('/api/orders'|" server.js
+      grep -n "hdm-activate" server.js          # باید یک خط نشان دهد
+
+۳) ری‌استارت:
+      pm2 restart hamidesigns && sleep 3
+      curl -s https://hamidesigns.shop/api/hdm/ping
+   خروجی باید چیزی شبیه این باشد:
+      {"status":200,"ok":true,"service":"hdm-activate","time":...}
+
+
+═══ گزینهٔ ۲) سرور ایران — اجرای مستقل (standalone) ═══
+(اگر نمی‌خواهید به سایت دست بزنید، یا روی سرور ایران)
+
+      mkdir -p /opt/hdm-activate
+      # فایل hdm-activate.js را اینجا آپلود کنید
+      cd /opt/hdm-activate
+      pm2 start hdm-activate.js --name hdm-activate
+      pm2 save
+      curl -s http://127.0.0.1:17432/ping
+
+برای دسترسی از بیرون، یا پورت ۱۷۴۳۲ را در فایروال باز کنید،
+یا (بهتر) در nginx یک مسیر بسازید:
+
+      location /api/hdm/ {
+          proxy_pass http://127.0.0.1:17432/;
+          proxy_set_header Host $host;
+      }
+سپس:  nginx -t && systemctl reload nginx
+و در فایروال فقط پورت ۸۰/۴۴۳ باز بماند.
+
+
+═══ معرفی سرورها به برنامه ═══
+فایل endpoints.json کنار برنامه (و داخل بستهٔ ویندوز) است. آدرس هر دو سرور را
+به ترتیب در آن بنویسید — برنامه اولی را امتحان می‌کند، اگر در دسترس نبود دومی:
+
+{
+  "endpoints": [
+    "https://hamidesigns.shop/api/hdm",
+    "https://your-iran-domain/api/hdm"
+  ]
+}
+
+
+═══ مدیریت لایسنس‌ها (از کامپیوتر خودتان) ═══
+      python3 hdm-admin.py list                         # فهرست فعال‌سازی‌ها
+      python3 hdm-admin.py release HG-XXXX-…            # آزاد کردن یک سریال
+      python3 hdm-admin.py plan HG-XXXX-… 12            # تغییر پلن (06/12/99)
+
+نکتهٔ مهم: قبل از اجرا، مقدار ADMIN_TOKEN را در فایل hdm-activate.js عوض کنید
+(متغیر hami-admin-change-me) و همین مقدار را در hdm-admin.py قرار دهید.
+
+
+═══ عیب‌یابی ═══
+• curl .../api/hdm/ping جواب نداد → مسیر در server.js درست اضافه نشده یا pm2
+  بالا نیامده:  pm2 logs hamidesigns --lines 40
+• برنامه پیام «ارتباط با سرور برقرار نشد» داد → آدرس در endpoints.json اشتباه است.
+• فایل داده: کنار hdm-activate.js با نام hdm-activations.json ساخته می‌شود؛
+  از آن نسخهٔ پشتیبان بگیرید (هر فعال‌سازی در آن ثبت می‌شود).
