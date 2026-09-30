@@ -1,0 +1,7 @@
+{
+  "_note": "HDM activation servers, tried in order: Finland (primary) then Iran (mirror). Ship this file next to HDM-1.0.0.exe.",
+  "endpoints": [
+    "https://hamidesigns.shop/api/hdm",
+    "https://hunter.smarthami63.shop/hdm-api"
+  ]
+}

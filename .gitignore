@@ -1,0 +1,30 @@
+# build
+dist/
+build/
+*.spec.bak
+installer/
+*.log
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.exe
+*.msi
+
+# runtime
+.hami-download-manager/
+license.dat
+trial.dat
+*.db
+
+# secrets
+*.pem
+*.key
+.env
+ADMIN-TOKEN-PRIVATE.txt
+LICENSES-PRIVATE.txt
+
+# editors
+.vscode/
+.idea/
+.DS_Store
