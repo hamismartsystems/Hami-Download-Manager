@@ -30,6 +30,8 @@
 
 ---
 
+<div dir="rtl">
+
 ### ✨ v2.1.0 — چی دقیقاً مثل عکس شد
 
 #### Main Window — مثل عکس 1
@@ -50,6 +52,8 @@
   - `Connection Status ✅` + `8/8 threads active`
   - `Details`: Save To + Total Speed
 - **Bottom Status**: `Total Speed: 45.5 MB/s | Total Downloaded: 4.8 GB | Active: 3, Completed: 0`
+
+</div>
 
 #### Settings — مثل عکس 2
 - **Title**: `Settings - DownloadMaster` + آیکون آبی
