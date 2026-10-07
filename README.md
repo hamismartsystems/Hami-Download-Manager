@@ -1,5 +1,7 @@
 # HDM - Hami Download Manager FREE EDITION v2.1.0
 
+**[English README / راهنمای انگلیسی](README.en.md)**
+
 ![Banner](screenshots/hdm-banner.png)
 
 <p align="center">
