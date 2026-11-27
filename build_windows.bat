@@ -1,11 +1,11 @@
 @echo off
 REM ============================================================
-REM  HAMI Download Manager (HDM) 2.1.5 — build app + installer
+REM  HAMI Download Manager (HDM) 2.2.1 — build app + installer
 REM  Needs: Python 3.10+ (Add to PATH) + Inno Setup 6 (optional)
-REM  Output: dist\HDM-2.1.5\HDM-2.1.5.exe  + installer\HDM-2.1.5-Setup.exe
+REM  Output: dist\HDM-2.2.1\HDM-2.2.1.exe  + installer\HDM-2.2.1-Setup.exe
 REM ============================================================
 cd /d "%~dp0"
-set VERSION=2.1.5
+set VERSION=2.2.1
 
 echo [1/3] Checking Python...
 python --version >nul 2>&1

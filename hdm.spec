@@ -1,9 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
-# HDM 2.1.5 FREE EDITION — Windows build — Pro UI bulletproof
+# HDM 2.2.1 FREE EDITION — Windows build — Pro UI bulletproof
 #   python -m pip install --upgrade pyinstaller pillow PyQt6
 #   pyinstaller hdm.spec --noconfirm --clean
-# Result: dist\HDM-2.1.5\HDM-2.1.5.exe   (desktop window)
-# Then: build_installer.bat  ->  installer\HDM-2.1.5-Setup.exe
+# Result: dist\HDM-2.2.1\HDM-2.2.1.exe   (desktop window)
+# Then: build_installer.bat  ->  installer\HDM-2.2.1-Setup.exe
 
 block_cipher = None
 
@@ -38,7 +38,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="HDM-2.1.5",
+    name="HDM-2.2.1",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -60,5 +60,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name="HDM-2.1.5",
+    name="HDM-2.2.1",
 )

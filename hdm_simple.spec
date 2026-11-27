@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 # FALLBACK spec — no icon, no version resource.
 # Use only if hdm.spec fails:  pyinstaller hdm_simple.spec --noconfirm --clean
-# Result: dist\HDM-2.1.5\HDM-2.1.5.exe   (then run build_installer.bat)
+# Result: dist\HDM-2.2.1\HDM-2.2.1.exe   (then run build_installer.bat)
 
 block_cipher = None
 
@@ -26,7 +26,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="HDM-2.1.5",
+    name="HDM-2.2.1",
     debug=False,
     strip=False,
     upx=True,
@@ -41,5 +41,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name="HDM-2.1.5",
+    name="HDM-2.2.1",
 )

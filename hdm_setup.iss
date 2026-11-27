@@ -1,16 +1,16 @@
-; Inno Setup script — HAMI Download Manager (HDM) 2.1.5 Bulletproof Exact Replica
+; Inno Setup script — HAMI Download Manager (HDM) 2.2.1 Bulletproof Exact Replica
 ; Requires Inno Setup 6: https://jrsoftware.org/isdl.php
-; Build first: build_windows.bat  (creates dist\HDM-2.1.5\HDM-2.1.5.exe)
+; Build first: build_windows.bat  (creates dist\HDM-2.2.1\HDM-2.2.1.exe)
 ; Then Compile this file
-; Output: installer\HDM-2.1.5-Setup.exe
+; Output: installer\HDM-2.2.1-Setup.exe
 
 #define MyAppName "HAMI Download Manager (HDM)"
 #define MyAppShort "HDM"
-#define MyAppVersion "2.1.5"
+#define MyAppVersion "2.2.1"
 #define MyAppPublisher "HAMI SMART SYSTEMS"
 #define MyAppURL "https://hamidesigns.shop/hdm/"
-#define MyAppExeName "HDM-2.1.5.exe"
-#define MyBuildDir "dist\HDM-2.1.5"
+#define MyAppExeName "HDM-2.2.1.exe"
+#define MyBuildDir "dist\HDM-2.2.1"
 
 [Setup]
 AppId={{8F2C1A55-HDM1-1000-9000-HAMISMARTSYSTEMS}
@@ -36,12 +36,12 @@ PrivilegesRequiredOverridesAllowed=commandline
 AlwaysShowComponentsList=no
 CloseApplications=yes
 RestartApplications=no
-VersionInfoVersion=2.1.5
+VersionInfoVersion=2.2.1
 VersionInfoCompany=HAMI SMART SYSTEMS
-VersionInfoDescription=HDM v2.1.5 Bulletproof Exact Replica FREE EDITION
+VersionInfoDescription=HDM v2.2.1 Bulletproof Exact Replica FREE EDITION
 VersionInfoCopyright=Copyright (c) 2026 HAMI SMART SYSTEMS GPL-3.0
 VersionInfoProductName=HAMI Download Manager
-VersionInfoProductVersion=2.1.5
+VersionInfoProductVersion=2.2.1
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -55,6 +55,8 @@ Type: files; Name: "{app}\HDM-1.0.1.exe"
 Type: files; Name: "{app}\HDM-1.0.0.exe"
 Type: files; Name: "{app}\HDM-2.1.0.exe"
 Type: files; Name: "{app}\HDM-2.1.5.exe"
+Type: files; Name: "{app}\HDM-2.2.0.exe"
+Type: files; Name: "{app}\HDM-2.2.1.exe"
 
 [Files]
 Source: "{#MyBuildDir}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
