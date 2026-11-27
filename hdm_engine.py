@@ -70,7 +70,6 @@ class Job:
         self.speed = 0
         self.created = time.time()
         self.auto_paused = False
-        self.forced = False   # per-file Start: runs even while the queue is paused
         self.parts = 1
         self.prog = None      # per-part resume positions
         self.gen = 0          # guards stale worker threads
@@ -127,16 +126,15 @@ class Engine:
         }
 
     def pump(self):
-        """Start waiting jobs while there is room in the queue.
-        While the queue is paused or held, only jobs the user started
-        one by one (forced) are started."""
-        gated = self.user_paused or self.hold
+        """Start waiting jobs while there is room in the queue."""
+        if self.user_paused or self.hold:
+            return
         with self.lock:
             for jid in self.order:
                 if self.running_count() >= self.max_concurrent:
                     break
                 j = self.jobs.get(jid)
-                if j and j.status == "waiting" and (not gated or j.forced):
+                if j and j.status == "waiting":
                     j._stop.clear()
                     j._pause.clear()
                     j.status = "queued"
@@ -262,12 +260,12 @@ class Engine:
                 ids = list(self.order)
             for jid in ids:
                 j = self.jobs.get(jid)
-                if not j or j.status == "canceled":
+                if not j or j.status in ("done", "canceled"):
                     continue
                 items.append({"url": j.url, "name": j.name, "size": j.size,
                               "done": j.done, "prog": j.prog,
                               "folder": str(j.dest_dir), "status": j.status,
-                              "path": j.path, "id": j.id})
+                              "id": j.id})
             Path(path).parent.mkdir(parents=True, exist_ok=True)
             tmp = str(path) + ".tmp"
             with open(tmp, "w", encoding="utf-8") as f:
@@ -292,7 +290,7 @@ class Engine:
             j.size = int(it.get("size") or 0)
             j.done = int(it.get("done") or 0)
             j.prog = it.get("prog")
-            j.status = "done" if it.get("status") == "done" else "paused"
+            j.status = "paused"
             j.dest_dir = Path(it.get("folder") or self.dest_dir)
             j.path = str(j.dest_dir / j.name)
             with self.lock:
@@ -344,36 +342,8 @@ class Engine:
             j._pause.clear()
             j._stop.clear()
             j.auto_paused = False
-            j.forced = True          # the user asked for this file explicitly
             j.status = "waiting"
             self.pump()
-
-    def remove(self, jid, delete_file=False):
-        """Drop a job from the list. Refuses running or queued jobs.
-        The file on disk is deleted only if delete_file is True and the job is
-        not done. Returns (ok, error_text)."""
-        with self.lock:
-            j = self.jobs.get(jid)
-            if not j:
-                return False, ""
-            if j.status in ("running", "queued"):
-                return False, "Stop the download first."
-            j._stop.set()
-            j._pause.clear()
-            path = Path(j.path) if j.path else None
-            status = j.status
-            self.jobs.pop(jid, None)
-            if jid in self.order:
-                self.order.remove(jid)
-        err = ""
-        if delete_file and path and status != "done":
-            try:
-                if path.exists():
-                    path.unlink()
-            except OSError as e:
-                err = f"Could not delete the file (it may be in use): {e}"
-        self._save()
-        return True, err
 
     def cancel(self, jid):
         j = self.jobs.get(jid)
@@ -471,7 +441,6 @@ class Engine:
         gen = j.gen
         try:
             j.status = "running"
-            j.forced = False
             req = Request(j.url, headers=self._headers(j))
             with urlopen(req, timeout=30) as r:
                 length = int(r.headers.get("Content-Length") or 0)

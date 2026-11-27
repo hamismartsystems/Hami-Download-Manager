@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""HDM v2.2.1 — Pro finesse, big icons, auto-paste, open folder/file, full Settings + About like reference"""
+"""HDM v2.1.5 — Pro finesse, big icons, auto-paste, open folder/file, full Settings + About like reference"""
 import os
 import sys
 import time
@@ -14,7 +14,6 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from PyQt6.QtCore import Qt, QTimer, QSettings, QSize, QPointF, pyqtSignal
-from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 from PyQt6.QtGui import QAction, QIcon, QFont, QPainter, QColor, QPen, QBrush, QLinearGradient, QPainterPath, QPixmap
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit,
@@ -28,7 +27,7 @@ import hdm_activation as act
 from hdm_engine import Engine
 import hdm_server
 
-VERSION = "2.2.1"
+VERSION = "2.1.5"
 ORG = "HAMI SMART SYSTEMS"
 APP = "HDM - Hami Download Manager"
 STATE_DIR = Path(os.environ.get("HDM_HOME") or Path.home() / ".hami-download-manager")
@@ -60,33 +59,61 @@ def fmt_eta(done, total, speed):
 # ── Pro Widgets ──
 
 class SegmentedBar(QWidget):
-    """One smooth progress bar: blue while running, green when done, red on error."""
     def __init__(self):
         super().__init__()
         self.setFixedHeight(16)
-        self._pct = 0
-        self._status = ""
+        self._segs = [{"state":"pending","pct":0}]*8
 
-    def set_progress(self, pct, status):
-        self._pct = max(0, min(100, int(pct)))
-        self._status = status
+    def set_segments(self, segs):
+        arr = list(segs[:8]) if segs else []
+        if not arr:
+            self._segs = [{"state":"pending","pct":0}]*8
+        else:
+            arr = (arr + [{"state":"pending","pct":0}]*8)[:8]
+            self._segs = arr
         self.update()
+
+    def set_from_pct(self, pct, status):
+        pct = int(pct)
+        filled = int(pct/100*8)
+        segs=[]
+        for i in range(8):
+            if i < filled:
+                segs.append({"state":"done","pct":100})
+            elif i == filled and status in ("running","paused") and 0<pct<100:
+                segs.append({"state":"running","pct":50})
+            else:
+                segs.append({"state":"pending","pct":0})
+        self.set_segments(segs)
 
     def paintEvent(self, e):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         w = self.width()
-        h = 8
-        y = (self.height() - h) // 2
-        p.setPen(Qt.PenStyle.NoPen)
-        p.setBrush(QBrush(QColor("#2A2E35")))
-        p.drawRoundedRect(0, y, w, h, 4, 4)
-        fill = int(w * self._pct / 100)
-        if fill > 0:
-            color = {"done": "#4CAF50", "error": "#E5484D"}.get(self._status, "#4A90E2")
-            p.setBrush(QBrush(QColor(color)))
-            p.drawRoundedRect(0, y, max(fill, 8), h, 4, 4)
-        p.end()
+        h = 10
+        y = (self.height()-h)//2
+        count = 8
+        spacing = 6
+        bar_w = max(8, (w - spacing*(count-1)) // count)
+        for i, s in enumerate(self._segs):
+            x = i*(bar_w+spacing)
+            if x+bar_w > w:
+                bar_w = w - x
+                if bar_w <=0:
+                    break
+            state = s.get("state","pending")
+            if state == "done":
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QBrush(QColor("#4CAF50")))
+                p.drawRoundedRect(x, y, bar_w, h, 3, 3)
+            elif state == "running":
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(QBrush(QColor("#2196F3")))
+                p.drawRoundedRect(x, y, bar_w, h, 3, 3)
+            else:
+                p.setPen(QPen(QColor("#252A35"), 1))
+                p.setBrush(QBrush(QColor("#15181E")))
+                p.drawRoundedRect(x, y, bar_w, h, 3, 3)
 
 class SpeedGraph(QWidget):
     def __init__(self):
@@ -269,7 +296,6 @@ class DownloadCard(QFrame):
     pauseSig = pyqtSignal(str)
     resumeSig = pyqtSignal(str)
     stopSig = pyqtSignal(str)
-    removeSig = pyqtSignal(str)
     openFolderSig = pyqtSignal(str)
     openFileSig = pyqtSignal(str)
 
@@ -360,7 +386,11 @@ class DownloadCard(QFrame):
             self.title.setText(name)
         self.ico.setText(self._icon(name))
 
-        self.bar.set_progress(pct, status)
+        segs = job.get("parts_progress", [])
+        if segs and len(segs)>=1:
+            self.bar.set_segments(segs)
+        else:
+            self.bar.set_from_pct(pct, status)
 
         if status == "running":
             self.speed.setText(f"Speed: {fmt_speed(speed)} | ETA: {fmt_eta(done,size,speed)}")
@@ -426,7 +456,7 @@ class DownloadCard(QFrame):
                 pass
             self.b_pause.clicked.connect(lambda: self.openFolderSig.emit(self.job_id))
             self.b_resume.clicked.connect(lambda: self.openFileSig.emit(self.job_id))
-            self.b_stop.clicked.connect(lambda: self.removeSig.emit(self.job_id))
+            self.b_stop.clicked.connect(lambda: self.stopSig.emit(self.job_id))
         else: # paused etc
             self.setStyleSheet("QFrame#downloadCard{background: #1E2025; border: 1px solid #2A2E35; border-radius: 12px;} QFrame#downloadCard:hover{border: 1px solid #3A4050;}")
             self.b_pause.set_blue(False)
@@ -455,14 +485,6 @@ class DownloadCard(QFrame):
             self.b_pause.clicked.connect(lambda: self.pauseSig.emit(self.job_id))
             self.b_resume.clicked.connect(lambda: self.resumeSig.emit(self.job_id))
             self.b_stop.clicked.connect(lambda: self.stopSig.emit(self.job_id))
-            if status in ("error", "canceled"):
-                # stopped or failed: the button removes the job from the list
-                self.b_stop.text_lbl.setText("Remove")
-                try:
-                    self.b_stop.clicked.disconnect()
-                except Exception:
-                    pass
-                self.b_stop.clicked.connect(lambda: self.removeSig.emit(self.job_id))
 
 # ── Settings Dialog — Exact like reference image 3 ──
 
@@ -1597,30 +1619,7 @@ class MainWindow(QMainWindow):
     def _remove_completed(self):
         for j in self.engine.list():
             if j["status"] == "done":
-                self.engine.remove(j["id"])
-        self.refresh()
-
-    def _remove_job(self, jid):
-        j = self.engine.get(jid)
-        if not j:
-            self.refresh()
-            return
-        delete_file = False
-        if j["status"] != "done" and j.get("path") and Path(j["path"]).exists():
-            box = QMessageBox(self)
-            box.setWindowTitle("HDM")
-            box.setText("This download is not complete.\n\nDelete the partial file from disk too?")
-            b_del = box.addButton("Delete file", QMessageBox.ButtonRole.DestructiveRole)
-            b_keep = box.addButton("Keep file", QMessageBox.ButtonRole.AcceptRole)
-            b_cancel = box.addButton("Cancel", QMessageBox.ButtonRole.RejectRole)
-            box.exec()
-            clicked = box.clickedButton()
-            if clicked is None or clicked is b_cancel:
-                return
-            delete_file = clicked is b_del
-        ok, err = self.engine.remove(jid, delete_file=delete_file)
-        if not ok and err:
-            QMessageBox.warning(self, "HDM", err)
+                self.engine.cancel(j["id"])
         self.refresh()
 
     def _open_settings(self):
@@ -1667,7 +1666,6 @@ class MainWindow(QMainWindow):
                 card.pauseSig.connect(lambda jid: (self.engine.pause(jid), self.refresh()))
                 card.resumeSig.connect(lambda jid: (self.engine.resume(jid), self.refresh()))
                 card.stopSig.connect(lambda jid: (self.engine.cancel(jid), self.refresh()))
-                card.removeSig.connect(lambda jid: self._remove_job(jid))
                 card.openFolderSig.connect(lambda jid: self._handle_open_folder(jid))
                 card.openFileSig.connect(lambda jid: self._handle_open_file(jid))
                 self.list_lay.insertWidget(self.list_lay.count()-1, card)
@@ -1702,47 +1700,12 @@ class MainWindow(QMainWindow):
         else:
             QMessageBox.information(self, "HDM", "File not found")
 
-SINGLE_INSTANCE_NAME = "HDM-SingleInstance-2.2.1"
-
-
-def _notify_running_copy():
-    """True if another HDM is running; it is asked to show its window."""
-    sock = QLocalSocket()
-    sock.connectToServer(SINGLE_INSTANCE_NAME)
-    if sock.waitForConnected(300):
-        sock.write(b"show")
-        sock.flush()
-        sock.waitForBytesWritten(300)
-        sock.disconnectFromServer()
-        return True
-    return False
-
-
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName(APP)
     app.setOrganizationName(ORG)
     app.setQuitOnLastWindowClosed(False)
-    if _notify_running_copy():
-        sys.exit(0)            # only one HDM may run; the old window was raised
-    QLocalServer.removeServer(SINGLE_INSTANCE_NAME)   # clear a stale server
-    server = QLocalServer()
-    server.listen(SINGLE_INSTANCE_NAME)
     w = MainWindow()
-    w._single_instance_server = server   # keep a reference
-
-    def _on_second_launch():
-        conn = server.nextPendingConnection()
-        if conn is None:
-            return
-        conn.waitForReadyRead(200)
-        conn.readAll()
-        conn.disconnectFromServer()
-        w.showNormal()
-        w.raise_()
-        w.activateWindow()
-
-    server.newConnection.connect(_on_second_launch)
     w.show()
     sys.exit(app.exec())
 

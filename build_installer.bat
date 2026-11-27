@@ -1,7 +1,7 @@
 @echo off
 REM --- Compile installer — version agnostic ---
 cd /d "%~dp0"
-set VERSION=2.2.1
+set VERSION=2.1.5
 
 REM Find built exe (supports both onedir and onefile)
 set FOUND=
